@@ -3,52 +3,37 @@ import { GraphNode, GraphEdge } from "@/types/graph";
 export const initialNodes: GraphNode[] = [
   { 
     id: "1", 
-    type: "custom", // Custom type add karna zaroori hai agar aap NodeCard use kar rahe hain
+    type: "custom", 
     position: { x: 250, y: 0 },
-    data: { title: "React", note: "A JavaScript library for building user interfaces." } 
+    data: { 
+      title: "React", 
+      note: "Library for UI", 
+      color: "blue", // Alag color
+      category: "CORE" 
+    } 
   },
   { 
     id: "2", 
-    type: "custom",
+    type: "custom", 
     position: { x: 100, y: 100 },
-    data: { title: "Next.js", note: "React framework with SSR." } 
-  },
-  { 
-    id: "3", 
-    type: "custom",
-    position: { x: 400, y: 100 },
-    data: { title: "TypeScript", note: "Typed superset of JavaScript." } 
+    data: { 
+      title: "Next.js", 
+      note: "React Framework", 
+      color: "purple", // Alag color
+      category: "FRAMEWORK" 
+    } 
   },
   { 
     id: "4", 
-    type: "custom",
+    type: "custom", 
     position: { x: 0, y: 200 },
-    data: { title: "State Management", note: "Context, Zustand, Redux." } 
-  },
-  { 
-    id: "5", 
-    type: "custom",
-    position: { x: 200, y: 200 },
-    data: { title: "Component Design", note: "Reusable UI components." } 
-  },
-  { 
-    id: "6", 
-    type: "custom",
-    position: { x: 100, y: 300 },
-    data: { title: "Performance", note: "Memoization, lazy loading." } 
-  },
-  { 
-    id: "7", 
-    type: "custom",
-    position: { x: 300, y: 300 },
-    data: { title: "Testing", note: "Unit, integration, e2e." } 
-  },
-  { 
-    id: "8", 
-    type: "custom",
-    position: { x: 500, y: 200 },
-    data: { title: "CSS & Styling", note: "Tailwind, CSS Modules." } 
-  },
+    data: { 
+      title: "Zustand", 
+      note: "State Management", 
+      color: "emerald", // Alag color
+      category: "STATE" 
+    } 
+  }
 ];
 
 export const initialEdges: GraphEdge[] = [

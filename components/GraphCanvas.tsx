@@ -15,6 +15,8 @@ import "@xyflow/react/dist/style.css";
 import Navbar from "./Navbar"; // Naya Navbar import
 import NodeCard from "./NodeCard";
 import { useGraphStore } from "../lib/graphUtils";
+import Map from "./Map";
+import ActionControls from "./ActionsControls";
 
 const nodeTypes = { custom: NodeCard };
 
@@ -34,7 +36,12 @@ export default function GraphCanvas() {
   } = useGraphStore();
 
   // Naye Navbar ke liye function pass karna
+  // Inside GraphCanvas component, update the addNewNode function:
+
   const addNewNode = useCallback(() => {
+    const colors = ["blue", "purple", "emerald", "rose"];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
     const newNode = {
       id: Math.random().toString(36).substr(2, 9),
       type: "custom",
@@ -45,11 +52,12 @@ export default function GraphCanvas() {
       data: {
         title: "New Research Unit",
         note: "Data stream initializing...",
+        color: randomColor, // Assign random color
+        category: `${randomColor.toUpperCase()}_UNIT`,
       },
     };
     addNode(newNode);
   }, [addNode]);
-
   if (!mounted) return null;
 
   return (
@@ -100,26 +108,9 @@ export default function GraphCanvas() {
 
         {/* Humne purane Panels (top-left, top-center) hata diye hain kyunki wo Navbar mein hain */}
 
-        {/* RADAR STYLE MINIMAP (Bottom Right) */}
-        <div className="hidden md:block">
-          <MiniMap
-            zoomable
-            pannable
-            className="!bg-slate-950/80 !border-white/10 !rounded-[2rem] !shadow-2xl !m-8 !w-56 !h-40 backdrop-blur-xl border overflow-hidden"
-            nodeColor="#6366f1"
-            maskColor="rgba(2, 6, 23, 0.7)"
-          />
-        </div>
-
+        <Map />
+        <ActionControls />
         {/* FLOATING ZOOM CONTROLS */}
-        <Panel position="bottom-left" className="m-8">
-          <div className="bg-slate-900/80 backdrop-blur-xl border border-white/5 rounded-2xl p-1 shadow-2xl">
-            <Controls
-              showInteractive={false}
-              className="!static !flex !flex-col !bg-transparent !border-none !shadow-none !m-0"
-            />
-          </div>
-        </Panel>
 
         {/* INTERACTION INFO */}
         <Panel position="bottom-center" className="mb-8">

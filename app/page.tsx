@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import NodeSidebar from "../components/NodeSidebar";
 
 // ✅ FIX: dynamic import with ssr false
 const GraphCanvas = dynamic(() => import("../components/GraphCanvas"), {

@@ -2,7 +2,6 @@
 import React, { memo, useState } from "react";
 import { Handle, Position } from "@xyflow/react";
 import {
-  Sparkles,
   Cpu,
   Clock,
   Link2,
@@ -11,13 +10,16 @@ import {
   X,
   Edit3,
   AlertCircle,
+  Zap,
+  ShieldCheck,
+  Activity,
+  Layers,
 } from "lucide-react";
 import { useGraphStore } from "../lib/graphUtils";
 
 export default memo(function NodeCard({ id, data, selected }: any) {
   const { updateNode, onNodesChange } = useGraphStore();
 
-  // States for Inline Editing & Inline Deleting
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [tempData, setTempData] = useState({
@@ -30,126 +32,112 @@ export default memo(function NodeCard({ id, data, selected }: any) {
     setIsEditing(false);
   };
 
-  const cancelEdit = () => {
-    setTempData({ title: data.title, note: data.note });
-    setIsEditing(false);
-  };
-
-  const deleteNode = () => {
-    onNodesChange([{ type: "remove", id }]);
-  };
-
   return (
-    <div className="relative group">
-      {/* 1. Animated Border Glow */}
+    <div className="relative group p-4">
+      {/* --- NEON AMBIENT GLOW --- */}
       {selected && (
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-purple-500 rounded-2xl blur opacity-30 animate-pulse" />
+        <div className="absolute inset-0 bg-blue-500/20 blur-[40px] rounded-full animate-pulse" />
       )}
 
-      {/* 2. Main Container */}
+      {/* --- MAIN TERMINAL CARD --- */}
       <div
         className={`
-        relative min-w-[280px] p-[1px] rounded-xl transition-all duration-500
+        relative min-w-[320px] rounded-2xl transition-all duration-500 ease-out
         ${
           selected
-            ? "bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-105"
-            : "bg-slate-800/50 border border-slate-700/50 backdrop-blur-md hover:border-slate-500"
+            ? "scale-105 rotate-[0.5deg] z-50"
+            : "hover:scale-[1.02] hover:-rotate-[0.5deg]"
         }
       `}>
-        <div className="bg-[#0b1120] p-5 rounded-xl overflow-visible relative">
+        {/* Glassmorphic Background with Border Gradient */}
+        <div
+          className={`
+          absolute inset-0 rounded-2xl p-[1.5px]
+          ${
+            selected
+              ? "bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-600 shadow-[0_0_50px_-10px_rgba(59,130,246,0.5)]"
+              : "bg-slate-700/30"
+          }
+        `}
+        />
+
+        <div className="relative bg-slate-950/90 backdrop-blur-xl rounded-[calc(1rem+4px)] p-6 overflow-hidden border border-white/5">
+          {/* --- TOP DECORATION: SCANLINE EFFECT --- */}
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-400/50 to-transparent animate-scan" />
+
+          {/* --- HANDLES --- */}
           <Handle
             type="target"
             position={Position.Top}
-            className="!w-3 !h-3 !bg-blue-500 !border-2 !border-slate-900"
+            className="!w-4 !h-1 !rounded-none !bg-blue-500 !border-none !shadow-[0_0_10px_#3b82f6]"
           />
 
-          {/* --- TOP ACTIONS (Visible on Hover/Select) --- */}
+          {/* --- ACTION FLOATING BAR --- */}
           <div
-            className={`absolute -top-10 left-1/2 -translate-x-1/2 flex gap-2 transition-all duration-300 ${selected ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}>
+            className={`absolute top-4 right-4 flex gap-2 transition-all duration-500 ${selected ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"}`}>
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-slate-900 border border-slate-700 p-2 rounded-lg text-blue-400 hover:bg-blue-600 hover:text-white shadow-xl">
+              className="p-2 bg-slate-800/80 hover:bg-blue-600 rounded-lg border border-white/10 text-white transition-all shadow-xl">
               <Edit3 size={14} />
             </button>
             <button
               onClick={() => setIsDeleting(true)}
-              className="bg-slate-900 border border-slate-700 p-2 rounded-lg text-red-400 hover:bg-red-600 hover:text-white shadow-xl">
+              className="p-2 bg-slate-800/80 hover:bg-red-600 rounded-lg border border-white/10 text-white transition-all shadow-xl">
               <Trash2 size={14} />
             </button>
           </div>
 
-          {/* --- DELETE WARNING OVERLAY (Inline Confirmation) --- */}
-          {isDeleting && (
-            <div className="absolute inset-0 z-20 bg-slate-950/95 rounded-xl flex flex-col items-center justify-center p-4 text-center animate-in fade-in zoom-in duration-200">
-              <AlertCircle
-                className="text-red-500 mb-2 animate-bounce"
-                size={24}
-              />
-              <p className="text-[10px] font-bold text-white uppercase tracking-tighter mb-4">
-                Terminate Module?
-              </p>
-              <div className="flex gap-2 w-full">
-                <button
-                  onClick={deleteNode}
-                  className="flex-1 bg-red-600 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-red-500">
-                  Confirm
-                </button>
-                <button
-                  onClick={() => setIsDeleting(false)}
-                  className="flex-1 bg-slate-800 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-700">
-                  Abort
-                </button>
-              </div>
+          {/* --- HEADER: PROTOCOL INFO --- */}
+          <div className="flex items-center gap-3 mb-6">
+            <div
+              className={`p-2.5 rounded-xl ${selected ? "bg-blue-500/20 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]" : "bg-slate-800 text-slate-500"}`}>
+              <Layers size={18} />
             </div>
-          )}
-
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-1.5">
-              <Cpu
-                size={14}
-                className={selected ? "text-blue-400" : "text-slate-500"}
-              />
-              <span className="text-[9px] font-black text-slate-500 tracking-widest uppercase">
-                Node_Protocol
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-blue-500/70 uppercase tracking-[0.2em] leading-none">
+                Core_Layer
+              </span>
+              <span className="text-[8px] font-mono text-slate-600 mt-1 uppercase">
+                ID: {id.slice(0, 8)}
               </span>
             </div>
-            {isEditing && (
-              <span className="text-[8px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full animate-pulse">
-                EDITING
-              </span>
-            )}
           </div>
 
-          {/* --- EDITABLE CONTENT --- */}
-          <div className="space-y-3">
+          {/* --- CONTENT AREA --- */}
+          <div className="space-y-4">
             {isEditing ? (
-              <div className="space-y-2 animate-in slide-in-from-top-1 duration-200">
-                <input
-                  className="w-full bg-slate-900/50 border border-blue-500/50 rounded-lg px-3 py-2 text-sm text-white focus:ring-1 focus:ring-blue-500 outline-none"
-                  value={tempData.title}
-                  onChange={(e) =>
-                    setTempData({ ...tempData, title: e.target.value })
-                  }
-                  autoFocus
-                />
-                <textarea
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-[10px] text-slate-300 focus:ring-1 focus:ring-blue-500 outline-none resize-none"
-                  value={tempData.note}
-                  onChange={(e) =>
-                    setTempData({ ...tempData, note: e.target.value })
-                  }
-                  rows={2}
-                />
-                <div className="flex gap-2 pt-2">
+              <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                <div className="relative">
+                  <TypeIcon />
+                  <input
+                    className="w-full bg-slate-900 border border-blue-500/30 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:ring-2 focus:ring-blue-500/40 outline-none transition-all"
+                    value={tempData.title}
+                    onChange={(e) =>
+                      setTempData({ ...tempData, title: e.target.value })
+                    }
+                    autoFocus
+                  />
+                </div>
+                <div className="relative">
+                  <NoteIcon />
+                  <textarea
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-[11px] text-slate-300 focus:ring-2 focus:ring-blue-500/40 outline-none resize-none"
+                    value={tempData.note}
+                    onChange={(e) =>
+                      setTempData({ ...tempData, note: e.target.value })
+                    }
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-2">
                   <button
                     onClick={saveChanges}
-                    className="p-2 bg-blue-600 rounded-lg text-white hover:bg-blue-500 transition-colors">
-                    <Check size={14} />
+                    className="flex-1 bg-blue-600 hover:bg-blue-500 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
+                    <Check size={14} /> COMMIT
                   </button>
                   <button
-                    onClick={cancelEdit}
-                    className="p-2 bg-slate-800 rounded-lg text-slate-400 hover:bg-slate-700 transition-colors">
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl text-slate-400 transition-colors">
                     <X size={14} />
                   </button>
                 </div>
@@ -157,35 +145,88 @@ export default memo(function NodeCard({ id, data, selected }: any) {
             ) : (
               <div
                 onDoubleClick={() => setIsEditing(true)}
-                className="cursor-pointer group/text">
-                <h3
-                  className={`text-sm font-bold truncate ${selected ? "text-white" : "text-slate-200"}`}>
-                  {data.title || "NEW_MODULE"}
+                className="group/text">
+                <h3 className="text-lg font-black text-white tracking-tight mb-1 group-hover/text:text-blue-400 transition-colors">
+                  {data.title || "NULL_ENTRY"}
                 </h3>
-                <p className="text-[10px] text-slate-400 line-clamp-2 mt-1 group-hover/text:text-slate-300">
-                  {data.note || "Double click to add description..."}
+                <p className="text-xs leading-relaxed text-slate-400 font-medium line-clamp-3 mb-4">
+                  {data.note || "System awaits description protocols..."}
                 </p>
+
+                {/* --- PREMIUM METRIC: HEALTH BAR --- */}
+                <div className="space-y-1.5 mb-2">
+                  <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase">
+                    <span className="flex items-center gap-1">
+                      <Activity size={10} /> Sync Health
+                    </span>
+                    <span className="text-blue-400 font-mono">98.2%</span>
+                  </div>
+                  <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 w-[98%] shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Footer Stats */}
-          <div className="mt-5 pt-3 border-t border-slate-800/50 flex justify-between text-[8px] font-mono text-slate-500 uppercase tracking-tighter">
-            <span className="flex items-center gap-1">
-              <Clock size={10} /> Latency: 0.04s
-            </span>
-            <span className="flex items-center gap-1 text-cyan-500/80">
-              <Link2 size={10} /> Online
-            </span>
+          {/* --- FOOTER: SYSTEM TELEMETRY --- */}
+          <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+            <div className="flex gap-3 text-[9px] font-mono font-bold">
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <Clock size={12} className="text-blue-500" /> 14.5ms
+              </div>
+              <div className="flex items-center gap-1.5 text-green-500/80">
+                <ShieldCheck size={12} /> SECURE
+              </div>
+            </div>
+            <div
+              className={`h-2 w-2 rounded-full shadow-[0_0_8px] ${selected ? "bg-blue-400 shadow-blue-400 animate-pulse" : "bg-slate-700 shadow-transparent"}`}
+            />
           </div>
+
+          {/* --- DELETE OVERLAY (The "Warning" Screen) --- */}
+          {isDeleting && (
+            <div className="absolute inset-0 z-[60] bg-slate-950/95 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center p-8 text-center animate-in zoom-in-95 duration-200">
+              <div className="p-4 bg-red-500/10 rounded-full mb-4">
+                <AlertCircle className="text-red-500 animate-pulse" size={32} />
+              </div>
+              <h4 className="text-white font-black uppercase tracking-widest text-sm mb-2">
+                Initialize Deletion?
+              </h4>
+              <p className="text-[10px] text-slate-500 mb-6 leading-relaxed">
+                This action will permanently terminate the data node and all its
+                visual connections.
+              </p>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => onNodesChange([{ type: "remove", id }])}
+                  className="flex-1 bg-red-600 hover:bg-red-500 py-3 rounded-xl text-[10px] font-black text-white uppercase shadow-lg shadow-red-900/40 transition-all">
+                  Destroy
+                </button>
+                <button
+                  onClick={() => setIsDeleting(false)}
+                  className="flex-1 bg-slate-800 py-3 rounded-xl text-[10px] font-black text-slate-400 uppercase hover:text-white transition-all">
+                  Abort
+                </button>
+              </div>
+            </div>
+          )}
 
           <Handle
             type="source"
             position={Position.Bottom}
-            className="!w-3 !h-3 !bg-blue-500 !border-2 !border-slate-900"
+            className="!w-4 !h-1 !rounded-none !bg-blue-500 !border-none !shadow-[0_0_10px_#3b82f6]"
           />
         </div>
       </div>
     </div>
   );
 });
+
+// Small Internal Components for Icons
+const TypeIcon = () => (
+  <Edit3 className="absolute left-3 top-3 text-slate-600" size={16} />
+);
+const NoteIcon = () => (
+  <Zap className="absolute left-3 top-3 text-slate-600" size={16} />
+);

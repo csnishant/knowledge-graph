@@ -1,119 +1,60 @@
 import { create } from "zustand";
-import {
-  Node,
-  Edge,
-  addEdge,
-  applyNodeChanges,
-  applyEdgeChanges,
-  NodeChange,
-  EdgeChange,
-  Connection,
+import { 
+  addEdge, 
+  Connection, 
+  EdgeChange, 
+  NodeChange, 
+  applyEdgeChanges, 
+  applyNodeChanges, 
+  OnNodesChange, 
+  OnEdgesChange, 
+  OnConnect 
 } from "@xyflow/react";
-import { loadFromStorage, saveToStorage } from "./storage";
-
-// ✅ EXPORT KARO (error fix)
-export type CustomNode = Node<{
-  title: string;
-  note: string;
-}>;
+import { GraphEdge, GraphNode } from "@/types/graph";
 
 interface GraphState {
-  nodes: Node[];
-  edges: Edge[];
-  selectedNode: Node | null;
-
-  onNodesChange: (changes: NodeChange[]) => void;
-  onEdgesChange: (changes: EdgeChange[]) => void;
-  onConnect: (connection: Connection) => void;
-
-  setSelectedNode: (node: Node | null) => void;
-  updateNode: (id: string, data: any) => void;
-  addNode: () => void;
-  deleteNode: (id: string) => void;
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  selectedNode: GraphNode | null;
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
+  onConnect: OnConnect;
+  setSelectedNode: (node: GraphNode | null) => void;
+  addNode: (node: GraphNode) => void;
+  updateNode: (id: string, data: { title?: string; note?: string }) => void;
 }
 
-const stored = loadFromStorage();
-
 export const useGraphStore = create<GraphState>((set, get) => ({
-  nodes: stored?.nodes || [
-    {
-      id: "1",
-      position: { x: 100, y: 100 },
-      data: { title: "React", note: "UI library" },
-    },
-  ],
-  edges: stored?.edges || [],
+  nodes: [],
+  edges: [],
   selectedNode: null,
-
-  // ✅ NODE CHANGE
-  onNodesChange: (changes) => {
-    const nextNodes = applyNodeChanges(changes, get().nodes);
-    set({ nodes: nextNodes });
-    saveToStorage({ nodes: nextNodes, edges: get().edges });
-  },
-
-  // ✅ EDGE CHANGE
-  onEdgesChange: (changes) => {
-    const nextEdges = applyEdgeChanges(changes, get().edges);
-    set({ edges: nextEdges });
-    saveToStorage({ nodes: get().nodes, edges: nextEdges });
-  },
-
-  // ✅ CONNECT FIX (IMPORTANT)
-onConnect: (params) => {
-  const nextEdges = addEdge(
-    {
-      ...params,
-      data: { label: "relates to" }, // ✅ correct
-    },
-    get().edges
-  );
-  set({ edges: nextEdges });
-  saveToStorage({ nodes: get().nodes, edges: nextEdges });
-},
 
   setSelectedNode: (node) => set({ selectedNode: node }),
 
-  // ✅ UPDATE NODE
-  updateNode: (id, newData) => {
-    const nextNodes = get().nodes.map((n) =>
-      n.id === id
-        ? { ...n, data: { ...(n.data as any), ...newData } }
-        : n
-    );
-    set({ nodes: nextNodes });
-    saveToStorage({ nodes: nextNodes, edges: get().edges });
+  onNodesChange: (changes: NodeChange[]) => {
+    set({ nodes: applyNodeChanges(changes, get().nodes) as GraphNode[] });
   },
 
-  deleteNode: (id) => {
-  const nextNodes = get().nodes.filter((n) => n.id !== id);
+  onEdgesChange: (changes: EdgeChange[]) => {
+    set({ edges: applyEdgeChanges(changes, get().edges) as GraphEdge[] });
+  },
 
-  const nextEdges = get().edges.filter(
-    (e) => e.source !== id && e.target !== id
-  );
+  onConnect: (connection: Connection) => {
+    set({
+      edges: addEdge(
+        { ...connection, animated: true, style: { stroke: "#3b82f6", strokeWidth: 2 } },
+        get().edges
+      ) as GraphEdge[],
+    });
+  },
 
-  set({
-    nodes: nextNodes,
-    edges: nextEdges,
-    selectedNode: null,
-  });
+  addNode: (newNode) => set({ nodes: [...get().nodes, newNode] }),
 
-  saveToStorage({ nodes: nextNodes, edges: nextEdges });
-},
-
-  // ✅ ADD NODE
-  addNode: () => {
-    const newNode: Node = {
-      id: Date.now().toString(),
-      position: {
-        x: Math.random() * 400,
-        y: Math.random() * 400,
-      },
-      data: { title: "New Node", note: "" },
-    };
-
-    const nextNodes = [...get().nodes, newNode];
-    set({ nodes: nextNodes });
-    saveToStorage({ nodes: nextNodes, edges: get().edges });
+  updateNode: (id, newData) => {
+    set({
+      nodes: get().nodes.map((node) =>
+        node.id === id ? { ...node, data: { ...node.data, ...newData } } : node
+      ),
+    });
   },
 }));

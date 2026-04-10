@@ -1,28 +1,26 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
-import {
-  ReactFlow,
-  Background,
-  Controls,
-  Panel,
-  BackgroundVariant,
-  MiniMap,
-} from "@xyflow/react";
+import { ReactFlow, Background, Panel, BackgroundVariant } from "@xyflow/react";
 import { MousePointer2 } from "lucide-react";
 import "@xyflow/react/dist/style.css";
 
-// Components Import
-import Navbar from "./Navbar"; // Naya Navbar import
+// --- IMPORTANT: Imports check karein ---
+import Navbar from "./Navbar";
 import NodeCard from "./NodeCard";
 import { useGraphStore } from "../lib/graphUtils";
 import Map from "./Map";
 import ActionControls from "./ActionsControls";
+// Apna GraphNode type yahan import karein
+import { GraphNode } from "../types/graph";
 
 const nodeTypes = { custom: NodeCard };
 
 export default function GraphCanvas() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     nodes,
@@ -32,17 +30,16 @@ export default function GraphCanvas() {
     onConnect,
     setSelectedNode,
     addNode,
-    selectedNode,
   } = useGraphStore();
 
-  // Naye Navbar ke liye function pass karna
-  // Inside GraphCanvas component, update the addNewNode function:
-
+  // --- ADD NEW NODE FUNCTION (FIXED) ---
   const addNewNode = useCallback(() => {
-    const colors = ["blue", "purple", "emerald", "rose"];
+    // 1. 'as const' use karein taaki TS ko pata chale sirf yahi 4 colors hain
+    const colors = ["blue", "purple", "emerald", "rose"] as const;
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const newNode = {
+    // 2. newNode ko 'GraphNode' ka type dein
+    const newNode: GraphNode = {
       id: Math.random().toString(36).substr(2, 9),
       type: "custom",
       position: {
@@ -52,17 +49,19 @@ export default function GraphCanvas() {
       data: {
         title: "New Research Unit",
         note: "Data stream initializing...",
-        color: randomColor, // Assign random color
+        color: randomColor, // Ab error nahi aayega
         category: `${randomColor.toUpperCase()}_UNIT`,
       },
     };
+
     addNode(newNode);
   }, [addNode]);
+
+  // Mounted check hamesha return se pehle
   if (!mounted) return null;
 
   return (
     <div className="flex-grow h-[100dvh] w-full bg-[#020617] relative text-white font-sans overflow-hidden">
-      {/* 1. Naya Navbar Yahan Add Kiya Hai */}
       <Navbar
         nodeCount={nodes.length}
         edgeCount={edges.length}
@@ -84,7 +83,6 @@ export default function GraphCanvas() {
         onConnect={onConnect}
         onNodeClick={(_, node) => setSelectedNode(node as any)}
         onPaneClick={() => setSelectedNode(null)}
-        // Settings for smooth navigation
         minZoom={0.2}
         maxZoom={1.5}
         fitView
@@ -106,18 +104,42 @@ export default function GraphCanvas() {
           className="opacity-30"
         />
 
-        {/* Humne purane Panels (top-left, top-center) hata diye hain kyunki wo Navbar mein hain */}
-
         <Map />
         <ActionControls />
-        {/* FLOATING ZOOM CONTROLS */}
 
-        {/* INTERACTION INFO */}
-        <Panel position="bottom-center" className="mb-8">
-          <div className="bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2">
-            <MousePointer2 size={12} className="text-indigo-400" />
-            <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">
-              Navigation Active • Pan to Move
+        <Panel
+          position="bottom-center"
+          className="mb-6 md:mb-10 w-full flex justify-center pointer-events-none">
+          <div
+            className={`
+    /* Layout & Spacing */
+    flex items-center gap-1.5 md:gap-2 
+    px-3 py-1.5 md:px-4 md:py-2 
+    rounded-full backdrop-blur-md 
+    
+    /* Colors & Border */
+    bg-indigo-500/10 border border-indigo-500/20 
+    
+    /* Animation & Shadow */
+    shadow-[0_0_20px_rgba(99,102,241,0.1)]
+    animate-in fade-in slide-in-from-bottom-4 duration-1000
+  `}>
+            <MousePointer2
+              size={10}
+              className="text-indigo-400 md:w-3 md:h-3"
+            />
+
+            <span
+              className={`
+      /* Text Styling */
+      font-black uppercase tracking-[0.1em] md:tracking-widest 
+      text-indigo-300 whitespace-nowrap
+      
+      /* Responsive Font Size */
+      text-[8px] md:text-[10px]
+    `}>
+              Navigation Active <span className="hidden xs:inline mx-1">•</span>{" "}
+              <span className="block xs:inline">Pan to Move</span>
             </span>
           </div>
         </Panel>

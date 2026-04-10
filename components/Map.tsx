@@ -4,50 +4,67 @@ import { MiniMap } from "@xyflow/react";
 
 const Map = () => {
   return (
-    <div className="hidden md:block group">
-      {/* Container with Neon Glow and Glassmorphism */}
-      <div className="absolute bottom-8 right-8 p-[1px] rounded-[2rem] bg-gradient-to-br from-indigo-500/20 to-transparent shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover:from-indigo-500/40">
-        {/* Scan-line Animation Effect (Optional) */}
-        <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none opacity-20">
-          <div className="w-full h-[2px] bg-indigo-400 animate-[scan_3s_linear_infinite]" />
+    <div className="group">
+      {/* Responsive Positioning:
+        Mobile: bottom-6 right-6 (Kone se thoda andar aur upar)
+        Desktop: md:bottom-10 md:right-10 
+      */}
+      <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 p-[1.5px] rounded-[1.2rem] md:rounded-[2rem] bg-gradient-to-br from-indigo-500/30 via-transparent to-indigo-500/10 shadow-[0_10px_40px_rgba(0,0,0,0.7)] transition-all duration-500 group-hover:from-indigo-500/50 z-[999]">
+        {/* Scan-line Animation */}
+        <div className="absolute inset-0 overflow-hidden rounded-[1.2rem] md:rounded-[2rem] pointer-events-none opacity-30">
+          <div className="w-full h-[3px] bg-indigo-400/50 animate-[scan_4s_linear_infinite]" />
         </div>
 
         <MiniMap
           zoomable
           pannable
-          // Professional Dark UI Classes
-          className="!bg-slate-950/90 !backdrop-blur-2xl !border-white/5 !rounded-[2rem] !m-0 !w-64 !h-44 !shadow-inner overflow-hidden"
-          // Nodes Styling: Glowing Dots effect
+          /* Mobile Size: !w-36 !h-28 (Balanced size for thumbs)
+            Desktop Size: md:!w-64 md:!h-44 
+          */
+          className="!bg-slate-950/95 !backdrop-blur-3xl !border-white/10 !rounded-[1.2rem] md:!rounded-[2rem] !m-0 !w-36 !h-28 md:!w-64 md:!h-44 !shadow-inner overflow-hidden"
           nodeColor={(node) => {
-            if (node.selected) return "#fbbf24"; // Gold for selected
-            if (node.type === "custom") return "#6366f1"; // Indigo for custom
-            return "#475569";
+            if (node.selected) return "#fbbf24";
+            const nodeColor = (node.data as any)?.color;
+            // Aapke custom node colors ke saath sync:
+            const colors: Record<string, string> = {
+              blue: "#3b82f6",
+              purple: "#a855f7",
+              emerald: "#10b981",
+              rose: "#f43f5e",
+            };
+            return colors[nodeColor] || "#6366f1";
           }}
-          // Mask Styling: The area outside the current view
-          maskColor="rgba(2, 6, 23, 0.8)"
-          maskStrokeColor="rgba(99, 102, 241, 0.3)"
+          maskColor="rgba(2, 6, 23, 0.85)"
+          maskStrokeColor="rgba(99, 102, 241, 0.4)"
           maskStrokeWidth={2}
-          nodeBorderRadius={20} // Makes nodes look like circular pips
+          nodeBorderRadius={20}
           nodeStrokeWidth={0}
         />
 
-        {/* Floating Label / Status Indicator */}
-        <div className="absolute top-4 left-6 flex items-center gap-2 pointer-events-none">
-          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-          <span className="text-[10px] font-bold text-indigo-300/70 uppercase tracking-[0.2em]">
-            System Radar
+        {/* Status Badge */}
+        <div className="absolute top-2 left-3 md:top-4 md:left-6 flex items-center gap-1.5 pointer-events-none">
+          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1] animate-pulse" />
+          <span className="text-[8px] md:text-[10px] font-black text-indigo-300/80 uppercase tracking-[0.15em] drop-shadow-md">
+            Radar_v2
           </span>
         </div>
       </div>
 
-      {/* Adding custom Scan animation to Global CSS or Tailwind config */}
       <style jsx global>{`
         @keyframes scan {
-          from {
-            transform: translateY(-100%);
+          0% {
+            transform: translateY(-110%);
+            opacity: 0;
           }
-          to {
-            transform: translateY(400%);
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(350%);
+            opacity: 0;
           }
         }
       `}</style>

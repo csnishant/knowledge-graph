@@ -24,3 +24,41 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 4s linear infinite;
+}
+
+/* MiniMap Customization */
+.react-flow__minimap {
+  background-color: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(59, 130, 246, 0.05) !important;
+}
+
+.react-flow__minimap-node {
+  fill: #3b82f6 !important;
+  stroke: none !important;
+  rx: 4;
+  /* rounded nodes in map */
+}
+.react-flow__minimap-node {
+  rx: 15px !important;
+  /* Rounded corners in map */
+  fill: #3b82f6 !important;
+}

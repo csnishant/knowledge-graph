@@ -49,15 +49,6 @@ After breaking things multiple times and fixing them again, I finally built some
 
 ---
 
-## 📸 Screen Tour
-
-- **Top Bar** → Control center (add nodes, search)  
-- **Main Canvas** → Graph playground  
-- **Sidebar / Modal** → Edit node details  
-- **MiniMap** → Navigation overview  
-
----
-
 ## 🧠 What I Learned
 
 ### 🚀 Next.js is Powerful
@@ -75,4 +66,4 @@ The radar and glow effects weren’t just design choices—they were about creat
 
 ### 1️⃣ Clone the repository
 ```bash
-git clone https://github.com/yourusername/your-repo.git
+git clone https://github.com/csnishant/knowledge-graph.git

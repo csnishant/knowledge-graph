@@ -73,11 +73,11 @@ export default function GraphCanvas() {
         onNodeClick={(_, node) => setSelectedNode(node as any)}
         onPaneClick={() => setSelectedNode(null)}
         // --- ZOOM & RESPONSIVENESS SETTINGS ---
-        fitView
-        fitViewOptions={{ padding: 0.2 }}
+
         minZoom={0.1} // Google Map jaisa door ka view
         maxZoom={2.0} // Close-up detail view
-        animate={true}
+        fitView
+        fitViewOptions={{ duration: 800 }}
         panOnScroll={true} // Mouse wheel se pan (Maps style)
         selectionOnDrag={true}
         defaultEdgeOptions={{

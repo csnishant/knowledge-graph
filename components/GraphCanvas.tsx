@@ -149,7 +149,7 @@ export default function GraphCanvas() {
 
         {/* STATS: Adaptive Position */}
         {!selectedNode && (
-          <Panel position="bottom-left" className="m-6 hidden lg:block">
+          <Panel position="top-right" className="m-6 hidden lg:block">
             <div className="w-64 bg-slate-950/80 backdrop-blur-2xl border border-slate-800/50 p-5 rounded-[2rem] shadow-2xl space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-blue-400 tracking-widest uppercase">
@@ -173,7 +173,7 @@ export default function GraphCanvas() {
         {/* ZOOM CONTROLS: Modern Floating Style */}
         <Controls
           showInteractive={false}
-          className="!bg-slate-900/90 !border-slate-800 !shadow-2xl !rounded-xl !p-1 !flex !flex-col !gap-1 !m-4 sm:!m-6"
+          className=" text-gray-900 !bg-slate-900/90 !border-slate-800 !shadow-2xl !rounded-xl !p-1 !flex !flex-col !gap-1 !m-4 sm:!m-6"
         />
 
         {/* INTERACTION BADGE (Google Maps style bottom right info) */}

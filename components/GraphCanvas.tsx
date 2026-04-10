@@ -118,7 +118,7 @@ export default function GraphCanvas() {
             onClick={addNewNode}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] active:scale-95">
             <Plus size={16} />
-            <span className="hidden sm:inline">Drop Node</span>
+            <span className="hidden sm:inline">Add Node</span>
           </button>
         </Panel>
 
@@ -189,7 +189,7 @@ export default function GraphCanvas() {
         </Panel>
       </ReactFlow>
 
-   
+     
     </div>
   );
 }

@@ -13,9 +13,7 @@ export default function Home() {
     <div className="w-full h-screen flex">
       <div className="flex-1">
         <GraphCanvas />
-       
       </div>
-      <NodeSidebar />
     </div>
   );
 }

@@ -19,7 +19,7 @@ After breaking things multiple times and fixing them again, I finally built some
 
 ## 🛠️ Tech Stack
 
-- **Framework:** Next.js (App Router + SSR)
+- **Framework:** Next.js 
 - **Graph Engine:** React Flow (`@xyflow/react`)
 - **State Management:** Zustand
 - **Styling:** Tailwind CSS
@@ -64,6 +64,15 @@ The radar and glow effects weren’t just design choices—they were about creat
 
 ## 🚀 How to Run Locally
 
-### 1️⃣ Clone the repository
+### 1️⃣ Clone the repository:
 ```bash
 git clone https://github.com/csnishant/knowledge-graph.git
+
+```
+### 1️⃣ Install dependencies:
+
+npm install
+
+### 1️⃣ Run the development server:
+```
+npm run dev

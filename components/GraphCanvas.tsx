@@ -20,7 +20,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useGraphStore } from "../lib/graphUtils";
 import NodeCard from "./NodeCard";
-import NodeSidebar from "./NodeSidebar";
+
 
 const nodeTypes = { custom: NodeCard };
 
@@ -189,8 +189,7 @@ export default function GraphCanvas() {
         </Panel>
       </ReactFlow>
 
-      {/* Responsive Sidebar for Mobile/Desktop */}
-      <NodeSidebar />
+   
     </div>
   );
 }

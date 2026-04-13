@@ -45,14 +45,18 @@ export const useGraphStore = create<GraphState>()(
         set({ edges: applyEdgeChanges(changes, get().edges) as GraphEdge[] });
       },
 
-      onConnect: (connection: Connection) => {
-        set({
-          edges: addEdge(
-            { ...connection, animated: true, style: { stroke: "#3b82f6", strokeWidth: 2 } },
-            get().edges
-          ) as GraphEdge[],
-        });
+     onConnect: (connection: any) => { // Type 'any' temporarily to allow enhanced edge data
+  set({
+    edges: addEdge(
+      { 
+        ...connection, 
+        // Note: GraphCanvas se data (level) pass ho raha hai, 
+        // yahan manually style override karne ki zaroorat nahi hai.
       },
+      get().edges
+    ) as GraphEdge[],
+  });
+},
 
       addNode: (newNode) => set({ nodes: [...get().nodes, newNode] }),
 

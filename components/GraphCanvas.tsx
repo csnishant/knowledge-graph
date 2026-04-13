@@ -1,22 +1,41 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
-import { ReactFlow, Background, Panel, BackgroundVariant } from "@xyflow/react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import {
+  ReactFlow,
+  Background,
+  Panel,
+  BackgroundVariant,
+  Connection,
+} from "@xyflow/react";
 import { MousePointer2 } from "lucide-react";
 import "@xyflow/react/dist/style.css";
 
-// --- IMPORTANT: Imports check karein ---
-import Navbar from "./Navbar";
-import NodeCard from "./NodeCard";
-import { useGraphStore } from "../lib/graphUtils";
+// Components
+import Navbar from "./layout/Navbar";
+import MemberNode from "./graph/MemberNode";
+import LabeledEdge from "./LabelEdge";
 import Map from "./Map";
 import ActionControls from "./ActionsControls";
-// Apna GraphNode type yahan import karein
-import { GraphNode } from "../types/graph";
+import Legend from "./Legend";
+import ConnectionModal from "./ConnectionModal"; // Import your new component
+import { useGraphStore } from "../lib/graphUtils";
+import SkillNode from "./graph/SkillNode";
 
-const nodeTypes = { custom: NodeCard };
+const LAYERS = {
+  MEMBERS: 100,
+  SKILLS: 600,
+};
 
 export default function GraphCanvas() {
   const [mounted, setMounted] = useState(false);
+
+  // --- MODAL STATES ---
+  const [pendingConnection, setPendingConnection] = useState<Connection | null>(
+    null,
+  );
+  const [modalPos, setModalPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -32,114 +51,134 @@ export default function GraphCanvas() {
     addNode,
   } = useGraphStore();
 
-  // --- ADD NEW NODE FUNCTION (FIXED) ---
-  const addNewNode = useCallback(() => {
-    // 1. 'as const' use karein taaki TS ko pata chale sirf yahi 4 colors hain
-    const colors = ["blue", "purple", "emerald", "rose"] as const;
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+  const nodeTypes = useMemo(
+    () => ({
+      custom: SkillNode,
+      member: MemberNode,
+    }),
+    [],
+  );
 
-    // 2. newNode ko 'GraphNode' ka type dein
-    const newNode: GraphNode = {
-      id: Math.random().toString(36).substr(2, 9),
+  const edgeTypes = useMemo(
+    () => ({
+      custom: LabeledEdge,
+    }),
+    [],
+  );
+
+  const addNewSkill = useCallback(() => {
+    const id = `skill_${Date.now()}`;
+    addNode({
+      id,
       type: "custom",
-      position: {
-        x: Math.random() * 600 - 300,
-        y: Math.random() * 400 - 200,
-      },
+      position: { x: LAYERS.SKILLS, y: nodes.length * 160 + 50 },
       data: {
-        title: "New Research Unit",
-        note: "Data stream initializing...",
-        color: randomColor, // Ab error nahi aayega
-        category: `${randomColor.toUpperCase()}_UNIT`,
+        title: "New Skill",
+        category: "Tech Stack",
+        expertCount: 0,
+        level: "skill", // <--- Ye add karein
       },
-    };
+    });
+  }, [addNode, nodes]);
 
-    addNode(newNode);
-  }, [addNode]);
+  const addNewMember = useCallback(() => {
+    const id = `member_${Date.now()}`;
+    addNode({
+      id,
+      type: "member",
+      position: { x: LAYERS.MEMBERS, y: nodes.length * 180 + 50 },
+      data: {
+        name: "New Member",
+        role: "Team Lead",
+        count: 0,
+        level: "member", // <--- Ye add karein
+      },
+    });
+  }, [addNode, nodes]);
 
-  // Mounted check hamesha return se pehle
+  // --- 4. IMPROVED CONNECTION LOGIC (No Prompt) ---
+  const handleConnect = useCallback((params: Connection) => {
+    // Modal kholne ke liye current mouse position capture karein
+    const event = window.event as MouseEvent;
+    setPendingConnection(params);
+    setModalPos({ x: event.clientX, y: event.clientY });
+  }, []);
+
+  const onLevelSelect = (level: string) => {
+    if (pendingConnection) {
+      const enhancedEdge = {
+        ...pendingConnection,
+        id: `e-${pendingConnection.source}-${pendingConnection.target}-${Date.now()}`,
+        type: "custom",
+        animated: level === "expert",
+        data: { level },
+      };
+      onConnect(enhancedEdge);
+    }
+    // Modal close karein
+    setPendingConnection(null);
+    setModalPos(null);
+  };
+
   if (!mounted) return null;
 
   return (
-    <div className="flex-grow h-[100dvh] w-full bg-[#020617] relative text-white font-sans overflow-hidden">
-      <Navbar
-        nodeCount={nodes.length}
-        edgeCount={edges.length}
-        onAddNode={addNewNode}
+    <div className="flex-grow h-screen w-full bg-[#020617] relative text-white overflow-hidden">
+      {/* 1. FLOATING DROP-DOWN MODAL */}
+      <ConnectionModal
+        position={modalPos}
+        onSelect={onLevelSelect}
+        onCancel={() => {
+          setPendingConnection(null);
+          setModalPos(null);
+        }}
       />
 
-      {/* Background Animated Glows */}
+      <Navbar
+        nodes={nodes} // POORA array bhejo, sirf length nahi
+        edgeCount={edges.length} // Ye sahi hai
+        onAddNode={addNewSkill}
+        onAddMember={addNewMember}
+      />
+      {/* Atmospheric Background Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-5%] left-[-5%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full" />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/10 blur-[120px] rounded-full" />
       </div>
-
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        onConnect={handleConnect}
         onNodeClick={(_, node) => setSelectedNode(node as any)}
         onPaneClick={() => setSelectedNode(null)}
-        minZoom={0.2}
-        maxZoom={1.5}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
-        panOnScroll={true}
-        defaultEdgeOptions={{
-          animated: true,
-          style: {
-            stroke: "#6366f1",
-            strokeWidth: 2,
-            filter: "drop-shadow(0 0 5px rgba(99, 102, 241, 0.4))",
-          },
+        defaultEdgeOptions={{ type: "custom", interactionWidth: 20 }}
+        connectionLineStyle={{
+          stroke: "#22d3ee",
+          strokeWidth: 2,
+          strokeDasharray: "5,5",
         }}>
         <Background
           color="#1e293b"
-          gap={35}
+          gap={40}
           size={1}
           variant={BackgroundVariant.Dots}
-          className="opacity-30"
+          className="opacity-20"
         />
 
         <Map />
         <ActionControls />
+        <Legend />
 
-        <Panel
-          position="bottom-center"
-          className="mb-6 md:mb-10 w-full flex justify-center pointer-events-none">
-          <div
-            className={`
-    /* Layout & Spacing */
-    flex items-center gap-1.5 md:gap-2 
-    px-3 py-1.5 md:px-4 md:py-2 
-    rounded-full backdrop-blur-md 
-    
-    /* Colors & Border */
-    bg-indigo-500/10 border border-indigo-500/20 
-    
-    /* Animation & Shadow */
-    shadow-[0_0_20px_rgba(99,102,241,0.1)]
-    animate-in fade-in slide-in-from-bottom-4 duration-1000
-  `}>
-            <MousePointer2
-              size={10}
-              className="text-indigo-400 md:w-3 md:h-3"
-            />
-
-            <span
-              className={`
-      /* Text Styling */
-      font-black uppercase tracking-[0.1em] md:tracking-widest 
-      text-indigo-300 whitespace-nowrap
-      
-      /* Responsive Font Size */
-      text-[8px] md:text-[10px]
-    `}>
-              Navigation Active <span className="hidden xs:inline mx-1">•</span>{" "}
-              <span className="block xs:inline">Pan to Move</span>
+        <Panel position="bottom-center" className="mb-10 pointer-events-none">
+          <div className="flex items-center gap-2 px-6 py-2 rounded-full backdrop-blur-xl bg-slate-900/40 border border-white/5 shadow-2xl">
+            <MousePointer2 size={12} className="text-cyan-400 animate-pulse" />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+              Drag from Member to Skill • Select Level on Release
             </span>
           </div>
         </Panel>

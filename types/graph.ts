@@ -1,17 +1,23 @@
 import { Node, Edge } from "@xyflow/react";
 
-// Ye batata hai ki ek Node ke andar kya-kya data ho sakta hai
 export type NodeCardData = {
-  title: string;
-  note: string;
-  color?: "blue" | "purple" | "emerald" | "rose"; // Sirf ye 4 colors allowed hain
+  // level ko optional (?) kar dein
+  level?: "learning" | "familiar" | "expert" | "member" | "skill"; 
+  title?: string;
+  expertCount?: number;
   category?: string;
+  name?: string;
+  role?: string;
+  count?: number;
+  note?: string;
+  // ... baaki properties
 };
 
-// Yahan hum generic Node ko apni NodeCardData de rahe hain
 export type GraphNode = Node<NodeCardData>;
 
+// --- Edge Types according to Legend ---
 export type GraphEdge = Edge<{
+  level?: "learning" | "familiar" | "expert"; // Matches Legend levels
   label?: string;
 }>;
 

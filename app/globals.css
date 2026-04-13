@@ -62,3 +62,35 @@ body {
   /* Rounded corners in map */
   fill: #3b82f6 !important;
 }
+/* 1. Background Gradient (Image jaisa deep space look) */
+.react-flow__pane {
+  background: radial-gradient(circle at center, #0f172a 0%, #020617 100%) !important;
+}
+
+/* 2. Custom Handle Styling (Invisibile handles but interactive) */
+.react-flow__handle {
+  opacity: 0;
+  /* Normal state mein chhupa rahega */
+  transition: opacity 0.3s;
+}
+
+.react-flow__node:hover .react-flow__handle {
+  opacity: 1;
+  /* Sirf hover par handle dikhega image ki tarah */
+}
+
+/* 3. Glowing Edges Animation */
+.react-flow__edge-path {
+  stroke-dasharray: 10;
+  animation: flow 20s linear infinite;
+}
+
+@keyframes flow {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}

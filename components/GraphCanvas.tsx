@@ -13,13 +13,13 @@ import "@xyflow/react/dist/style.css";
 // Components
 import Navbar from "./layout/Navbar";
 import MemberNode from "./graph/MemberNode";
+import SkillNode from "./graph/SkillNode";
 import LabeledEdge from "./LabelEdge";
 import Map from "./Map";
 import ActionControls from "./ActionsControls";
 import Legend from "./Legend";
-import ConnectionModal from "./ConnectionModal"; // Import your new component
+import ConnectionModal from "./ConnectionModal";
 import { useGraphStore } from "../lib/graphUtils";
-import SkillNode from "./graph/SkillNode";
 
 const LAYERS = {
   MEMBERS: 100,
@@ -33,9 +33,14 @@ export default function GraphCanvas() {
   const [pendingConnection, setPendingConnection] = useState<Connection | null>(
     null,
   );
-  const [modalPos, setModalPos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
+  // GraphCanvas.tsx ke upar state definition change karein
+
+  const [modalPos, setModalPos] = useState<{
+    x: number;
+    y: number;
+    sourceType?: string;
+    targetType?: string;
+  } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -66,6 +71,29 @@ export default function GraphCanvas() {
     [],
   );
 
+  // --- VALIDATION LOGIC ---
+  // Isse 'Skill to Skill' connection block ho jayega
+  const isValidConnection = useCallback(
+    (edge: any) => {
+      const { source, target } = edge;
+      if (!source || !target) return false;
+
+      const sourceNode = nodes.find((n) => n.id === source);
+      const targetNode = nodes.find((n) => n.id === target);
+
+      // Allow Member to Skill
+      if (sourceNode?.type === "member" && targetNode?.type === "custom")
+        return true;
+
+      // Allow Skill to Skill (Dependency)
+      if (sourceNode?.type === "custom" && targetNode?.type === "custom")
+        return true;
+
+      return false;
+    },
+    [nodes],
+  );
+
   const addNewSkill = useCallback(() => {
     const id = `skill_${Date.now()}`;
     addNode({
@@ -76,10 +104,10 @@ export default function GraphCanvas() {
         title: "New Skill",
         category: "Tech Stack",
         expertCount: 0,
-        level: "skill", // <--- Ye add karein
+        level: "skill",
       },
     });
-  }, [addNode, nodes]);
+  }, [addNode, nodes.length]);
 
   const addNewMember = useCallback(() => {
     const id = `member_${Date.now()}`;
@@ -91,18 +119,31 @@ export default function GraphCanvas() {
         name: "New Member",
         role: "Team Lead",
         count: 0,
-        level: "member", // <--- Ye add karein
+        level: "member",
       },
     });
-  }, [addNode, nodes]);
+  }, [addNode, nodes.length]);
 
-  // --- 4. IMPROVED CONNECTION LOGIC (No Prompt) ---
-  const handleConnect = useCallback((params: Connection) => {
-    // Modal kholne ke liye current mouse position capture karein
+const handleConnect = useCallback(
+  (params: Connection) => {
     const event = window.event as MouseEvent;
+
+    // Nodes find karein taaki unka type pata chale
+    const sourceNode = nodes.find((n) => n.id === params.source);
+    const targetNode = nodes.find((n) => n.id === params.target);
+
     setPendingConnection(params);
-    setModalPos({ x: event.clientX, y: event.clientY });
-  }, []);
+
+    // Ab ye object state ke naye type se match karega
+    setModalPos({
+      x: event.clientX,
+      y: event.clientY,
+      sourceType: sourceNode?.type,
+      targetType: targetNode?.type,
+    });
+  },
+  [nodes],
+);
 
   const onLevelSelect = (level: string) => {
     if (pendingConnection) {
@@ -115,7 +156,6 @@ export default function GraphCanvas() {
       };
       onConnect(enhancedEdge);
     }
-    // Modal close karein
     setPendingConnection(null);
     setModalPos(null);
   };
@@ -124,7 +164,7 @@ export default function GraphCanvas() {
 
   return (
     <div className="flex-grow h-screen w-full bg-[#020617] relative text-white overflow-hidden">
-      {/* 1. FLOATING DROP-DOWN MODAL */}
+      {/* 1. CONNECTION MODAL */}
       <ConnectionModal
         position={modalPos}
         onSelect={onLevelSelect}
@@ -134,17 +174,21 @@ export default function GraphCanvas() {
         }}
       />
 
+      {/* 2. NAVBAR */}
       <Navbar
-        nodes={nodes} // POORA array bhejo, sirf length nahi
-        edgeCount={edges.length} // Ye sahi hai
+        nodes={nodes}
+        edgeCount={edges.length}
         onAddNode={addNewSkill}
         onAddMember={addNewMember}
       />
+
       {/* Atmospheric Background Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/10 blur-[120px] rounded-full" />
       </div>
+
+      {/* 3. REACT FLOW CANVAS */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -153,6 +197,7 @@ export default function GraphCanvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={handleConnect}
+        isValidConnection={isValidConnection} // <--- Critical Fix: Validation applied here
         onNodeClick={(_, node) => setSelectedNode(node as any)}
         onPaneClick={() => setSelectedNode(null)}
         fitView

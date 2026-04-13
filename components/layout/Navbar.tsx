@@ -74,7 +74,8 @@ export default function Navbar({
               <div className="flex items-center gap-1.5 border-l border-white/10 pl-3">
                 <Network size={12} className="text-cyan-400" />
                 <span className="text-[10px] font-bold text-slate-400">
-                  <span className="text-white">{edgeCount}</span> Links
+                  <span className="text-white">{edgeCount}</span> Edges
+                  
                 </span>
               </div>
             </div>

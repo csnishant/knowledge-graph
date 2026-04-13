@@ -52,11 +52,17 @@ export default memo(function NodeCard({ id, data, selected }: any) {
     );
   };
 
-  const onDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setNodes((nds) => nds.filter((n) => n.id !== id));
-    setEdges((eds) => eds.filter((e) => e.target === id || e.source === id));
-  };
+const onDelete = (e: React.MouseEvent) => {
+  e.stopPropagation(); // Taaki node select na ho jaye delete click par
+
+  // 1. Remove the specific node
+  setNodes((nds) => nds.filter((n) => n.id !== id));
+
+  // 2. Remove ONLY edges connected to THIS node
+  setEdges((eds) =>
+    eds.filter((edge) => edge.source !== id && edge.target !== id),
+  );
+};
 
   return (
     <div className="relative group p-4 flex flex-col items-center">

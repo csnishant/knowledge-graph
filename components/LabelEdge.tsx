@@ -21,7 +21,7 @@ export default function LabeledEdge({
     targetPosition,
   });
 
-  // 1. Level Specific Styling Logic
+  // Level Specific Styling Logic
   const levelConfig: any = {
     learning: {
       color: "text-slate-400",
@@ -48,8 +48,19 @@ export default function LabeledEdge({
       dash: "",
       glow: "drop-shadow(0 0 8px rgba(34, 211, 238, 0.6))",
     },
+    // --- NAYA PREREQUISITE STYLE (Skill to Skill) ---
+    prerequisite: {
+      color: "text-amber-400",
+      border: "border-amber-500/50",
+      bg: "bg-amber-950/30",
+      stroke: "#f59e0b", // Amber Color
+      width: 2.5,
+      dash: "5,5", // Dashed Line
+      glow: "drop-shadow(0 0 6px rgba(245, 158, 11, 0.4))",
+    },
   };
 
+  // Agar data.level "prerequisite" hai toh amber wala config use hoga
   const current = levelConfig[data?.level] || levelConfig.learning;
 
   return (
@@ -73,17 +84,24 @@ export default function LabeledEdge({
             pointerEvents: "all",
           }}
           className="nodrag nopan group">
-          {/* --- ENHANCED GLASSY LABEL --- */}
           <div
             className={`
             relative flex items-center gap-1.5 px-3 py-1 rounded-full border 
             backdrop-blur-md transition-all duration-300 scale-90
             ${current.bg} ${current.border}
-            group-hover:scale-100 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]
+            group-hover:scale-100 
+            ${
+              data?.level === "prerequisite"
+                ? "group-hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                : "group-hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+            }
           `}>
             {/* Level Icon / Dot */}
             <div
-              className={`w-1.5 h-1.5 rounded-full ${data?.level === "expert" ? "bg-cyan-400 animate-pulse" : "bg-current opacity-50"}`}
+              className={`w-1.5 h-1.5 rounded-full 
+                ${data?.level === "expert" ? "bg-cyan-400 animate-pulse" : ""}
+                ${data?.level === "prerequisite" ? "bg-amber-400" : "bg-current opacity-50"}
+              `}
             />
 
             <span
@@ -91,9 +109,14 @@ export default function LabeledEdge({
               {data?.level || "Learning"}
             </span>
 
-            {/* Glowing inner shadow for Expert only */}
+            {/* Expert Glow */}
             {data?.level === "expert" && (
               <div className="absolute inset-0 rounded-full shadow-[inset_0_0_10px_rgba(34,211,238,0.2)] pointer-events-none" />
+            )}
+
+            {/* Prerequisite Glow */}
+            {data?.level === "prerequisite" && (
+              <div className="absolute inset-0 rounded-full shadow-[inset_0_0_10px_rgba(245,158,11,0.1)] pointer-events-none" />
             )}
           </div>
         </div>

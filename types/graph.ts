@@ -17,7 +17,7 @@ export type GraphNode = Node<NodeCardData>;
 
 // --- Edge Types according to Legend ---
 export type GraphEdge = Edge<{
-  level?: "learning" | "familiar" | "expert"; // Matches Legend levels
+  level?: "learning" | "familiar" | "expert"|"prerequisite"; // Matches Legend levels
   label?: string;
 }>;
 
